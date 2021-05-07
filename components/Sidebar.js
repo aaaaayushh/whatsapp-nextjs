@@ -10,10 +10,11 @@ import Chat from "./Chat";
 import { useCollection } from "react-firebase-hooks/firestore";
 function Sidebar() {
   const [user] = useAuthState(auth);
+  console.log(user.photoURL);
   //queries the chats
   const userChatRef = db
     .collection("chats")
-    .where("users", "array-contains", user.email);
+    .where("users", "array-contains", user?.email);
   //map userChatRef to real time object
   //basically get snapshot of database in real time
   const [chatsSnapshot] = useCollection(userChatRef);
@@ -47,7 +48,8 @@ function Sidebar() {
   return (
     <Container>
       <Header>
-        <UserAvatar onClick={() => auth.signOut()} />
+        <UserAvatar src={user.photoURL} onClick={() => auth.signOut()} />
+
         <IconsContainer>
           <IconButton>
             <ChatIcon />
@@ -65,8 +67,9 @@ function Sidebar() {
 
       <SidebarButton onClick={createChat}>Start a new Chat</SidebarButton>
       {/* list of chats */}
+
       {chatsSnapshot?.docs.map((chat) => (
-        <Chat key={chat.id} id={chat.id} user={chat.data().users} />
+        <Chat key={chat.id} id={chat.id} users={chat.data().users} />
       ))}
     </Container>
   );
@@ -74,7 +77,19 @@ function Sidebar() {
 
 export default Sidebar;
 
-const Container = styled.div``;
+const Container = styled.div`
+  flex: 0.45;
+  border-right: 1px solid whitesmoke;
+  height: 100vh;
+  min-width: 300px;
+  max-width: 350px;
+  overflow-y: scroll;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+`;
 
 const SidebarButton = styled(Button)`
   width: 100%;
